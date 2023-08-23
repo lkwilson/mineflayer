@@ -1,16 +1,19 @@
 const assert = require('assert')
 
 module.exports = () => async (bot) => {
-  const Item = require('prismarine-item')(bot.registry)
-  if (bot.registry.itemsByName.elytra === undefined) return // no elytra in this version
+  // don't continue unless this version supports elytra
+  if (!bot.supportFeature('hasElytraFlying')) return
+  const supportsFireworkRockets = bot.supportFeature("fireworkNamePlural") || bot.supportFeature("fireworkNameSingular")
 
-  const fireworkItem = bot.registry.itemsArray.find(item => item.displayName === 'Firework Rocket')
+  const Item = require('prismarine-item')(bot.registry)
 
   await bot.test.setInventorySlot(6, new Item(bot.registry.itemsByName.elytra.id, 1))
-  if (fireworkItem !== undefined) {
+  if (supportsFireworkRockets) {
+    const fireworkItem = bot.registry.itemsArray.find(item => item.displayName === 'Firework Rocket')
+    assert.ok(fireworkItem !== undefined)
     await bot.test.setInventorySlot(36, new Item(fireworkItem.id, 64))
   }
-  await bot.test.teleport(bot.entity.position.offset(0, 10000, 0))
+  await bot.test.teleport(bot.entity.position.offset(0, 100, 0))
   await bot.test.becomeSurvival()
   await bot.creative.stopFlying()
 
@@ -21,7 +24,7 @@ module.exports = () => async (bot) => {
   await bot.waitForTicks(20) // wait for server to accept
   assert.ok(bot.entity.elytraFlying)
 
-  if (fireworkItem === undefined) return // no fireworks in this version
+  if (!supportsFireworkRockets) return
 
   // use rocket
   for (let i = 0; i < 20; i++) {
