@@ -27,9 +27,10 @@ module.exports = () => async (bot) => {
   if (!supportsFireworkRockets) return
 
   // use rocket
+  await bot.look(bot.entity.yaw, 30 * Math.PI / 180)
   for (let i = 0; i < 20; i++) {
-    assert.ok(bot.entity.elytraFlying)
     bot.activateItem()
+    assert.ok(bot.entity.elytraFlying)
     await bot.waitForTicks(1)
   }
   assert.ok(bot.fireworkRocketDuration > 0)
